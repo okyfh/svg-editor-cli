@@ -1,3 +1,4 @@
+import { SvgFileStore } from '../src/infrastructure/SvgFileStore.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -17,8 +18,8 @@ test('tokenizer preserves quoted content, empty text, escaped quotes and color h
   for (const line of ['"bad', 'a"b"', '"a"b']) assert.throws(() => parser.tokenize(line));
 });
 
-test('no-document errors, help, unknown and pending commands are explicit', () => {
-  const cli = new CommandDispatcher();
+test('no-document errors, help and unknown commands are explicit', () => {
+  const cli = new CommandDispatcher(new EditorSession(new SvgFileStore()));
   assert.equal(cli.dispatch('# comment'), undefined);
   assert.equal(cli.dispatch(''), undefined);
   for (const line of ['create g a', 'tree', 'show a', 'canvas', 'undo', 'save']) {
@@ -30,7 +31,7 @@ test('no-document errors, help, unknown and pending commands are explicit', () =
   }
   assert.match(cli.dispatch('help extra')!, /^error: usage:/);
   assert.equal(cli.dispatch('wat'), 'error: unknown command: wat');
-  assert.equal(cli.dispatch('read file.svg'), 'error: command is planned for stage 5');
+  assert.equal(cli.dispatch('read /nonexistent-svg-editor-test/file.svg'), 'error: cannot read file: /nonexistent-svg-editor-test/file.svg');
   cli.dispatch('init');
   assert.equal(cli.dispatch('undo'), 'error: undo not allowed after io command');
 });
@@ -84,7 +85,7 @@ test('invalid create and resize leave document, dimensions and existing tree unc
 });
 
 test('tree shows nested connectors, inline geometry and subtree; show reports parent and attributes', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init 400 200');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init 400 200');
   cli.dispatch('create g flow'); cli.dispatch('create g node in flow');
   cli.dispatch('create rect r 10 20 30 40 red in node');
   cli.dispatch('create text t 10 40 "Start" in flow');
@@ -102,7 +103,7 @@ test('tree shows nested connectors, inline geometry and subtree; show reports pa
 });
 
 test('canvas query and resize work, single init dimension retains default height', () => {
-  const cli = new CommandDispatcher();
+  const cli = new CommandDispatcher(new EditorSession());
   assert.equal(cli.dispatch('init 400'), 'canvas 400x600 created');
   assert.equal(cli.dispatch('canvas'), 'canvas 400x600');
   assert.equal(cli.dispatch('canvas 320.5 200'), 'canvas resized to 320.5x200');

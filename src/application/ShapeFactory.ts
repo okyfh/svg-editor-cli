@@ -5,33 +5,37 @@ import { Ellipse } from '../domain/Ellipse.js';
 import { Line } from '../domain/Line.js';
 import { Text } from '../domain/Text.js';
 import { Group } from '../domain/Group.js';
-import { CommandArguments } from './CommandArguments.js';
+import { ShapeInput } from './ShapeInput.js';
 
-/** The only shape-name dispatch point; replace with providers in the plugin phase. */
+/** The only shape-name dispatch point; CLI and SVG imports share it. */
 export class ShapeFactory {
   public create(type: string, id: string, params: readonly string[], quotedParams?: readonly boolean[]): Shape {
-    const a = new CommandArguments(params, `create ${type} <id> <geometry...> [style] [in <containerId>]`);
-    let shape: Shape;
-    let style: string | undefined;
-    let styleAttribute = 'fill';
+    return this.build(type, id, ShapeInput.cli(type, params, quotedParams));
+  }
+  public fromSvg(type: string, id: string, attributes: Readonly<Record<string, string>>, text: string): Shape {
+    return this.build(type, id, ShapeInput.svg(type, attributes, text));
+  }
+  private build(type: string, id: string, input: ShapeInput): Shape {
     switch (type) {
       case 'rect':
-        a.count(4, 5); shape = new Rect(id, a.number(0), a.number(1), a.number(2), a.number(3)); style = params[4]; break;
+        input.count(4, 5);
+        return input.finish(new Rect(id, input.number(0, 'x'), input.number(1, 'y'), input.number(2, 'width'), input.number(3, 'height')), 4);
       case 'circle':
-        a.count(3, 4); shape = new Circle(id, a.number(0), a.number(1), a.number(2)); style = params[3]; break;
+        input.count(3, 4);
+        return input.finish(new Circle(id, input.number(0, 'cx'), input.number(1, 'cy'), input.number(2, 'r')), 3);
       case 'ellipse':
-        a.count(4, 5); shape = new Ellipse(id, a.number(0), a.number(1), a.number(2), a.number(3)); style = params[4]; break;
+        input.count(4, 5);
+        return input.finish(new Ellipse(id, input.number(0, 'cx'), input.number(1, 'cy'), input.number(2, 'rx'), input.number(3, 'ry')), 4);
       case 'line':
-        a.count(4, 5); shape = new Line(id, a.number(0), a.number(1), a.number(2), a.number(3)); style = params[4]; styleAttribute = 'stroke'; break;
+        input.count(4, 5);
+        return input.finish(new Line(id, input.number(0, 'x1'), input.number(1, 'y1'), input.number(2, 'x2'), input.number(3, 'y2')), 4, 'stroke');
       case 'text':
-        a.count(3);
-        if (quotedParams && !quotedParams[2]) throw new Error('text content must be enclosed in double quotes');
-        shape = new Text(id, a.number(0), a.number(1), a.at(2)); break;
+        input.count(3);
+        return input.finish(new Text(id, input.number(0, 'x'), input.number(1, 'y'), input.content()));
       case 'g':
-        a.count(0); shape = new Group(id); break;
+        input.count(0);
+        return input.finish(new Group(id));
       default: throw new Error(`unknown shape type: ${type} (is the plugin loaded?)`);
     }
-    if (style !== undefined) shape.set(styleAttribute, style);
-    return shape;
   }
 }

@@ -8,7 +8,7 @@ export class GroupCommand implements Command {
   public constructor(private readonly session: EditorSession) {}
   public execute(args: readonly string[]): string {
     void this.session.document;
-    const a = new CommandArguments(args, this.syntax); a.count(2, Number.POSITIVE_INFINITY);
+    const a = new CommandArguments(args, this.syntax); a.count(3, Number.POSITIVE_INFINITY);
     return this.session.edit(new GroupEdit(a.at(0), args.slice(1)));
   }
 }

@@ -15,7 +15,7 @@ export class Text extends GeometricShape {
     const content = this.#content;
     return new Memento(() => { base.restore(); this.#content = content; });
   }
-  public get content(): string { return this.#content; }
+  public override get content(): string { return this.#content; }
   public override get attributes(): Readonly<Record<string, string | number>> {
     return Object.freeze({ ...super.attributes, text: this.#content });
   }

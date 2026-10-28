@@ -9,15 +9,19 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json && tsc -p tsconfig.tools.json",
     "cli": "tsx src/main.ts",
     "start": "node dist/main.js",
-    "check": "npm run typecheck && npm run build && npm test",
-    "test": "tsx --test test/*.test.ts"
+    "check": "npm run typecheck && npm run check:architecture && npm run build && npm test",
+    "test": "tsx --test test/*.test.ts",
+    "check:architecture": "tsx scripts/ArchitectureCheck.ts"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
     "tsx": "4.23.15",
     "typescript": "7.0.2"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12"
   }
 }

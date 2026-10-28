@@ -1,0 +1,16 @@
+@startuml
+skinparam componentStyle rectangle
+component "main.ts\n依赖组装" as Main
+package "cli" as CLI
+package "application\n用例、Command、IO 端口" as App
+package "domain\n图形与文档模型" as Domain
+package "infrastructure\nSVG / 文件 IO" as Infra
+Main --> CLI
+Main --> App
+Main --> Infra
+CLI --> App
+CLI --> Domain : 只读显示
+App --> Domain
+Infra --> App : 实现 IO 端口
+Infra --> Domain : 构建 / 序列化图形
+@enduml

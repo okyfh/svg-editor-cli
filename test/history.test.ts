@@ -14,7 +14,7 @@ class FailingEdit extends EditCommand {
 }
 
 test('every edit is one undo unit and redo restores the entire resulting tree', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init');
   for (const line of [
     'create g scene', 'create g left in scene', 'create g right in scene',
     'create rect r 1 2 3 4 in left', 'create text t 5 6 "title" in left',
@@ -38,7 +38,7 @@ test('every edit is one undo unit and redo restores the entire resulting tree', 
 });
 
 test('multiple commands rewind to empty canvas and replay in order', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init 100 200');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init 100 200');
   const states = [cli.dispatch('tree')];
   for (const command of ['create g g', 'create rect r 0.1 0.2 0.3 0.4 in g', 'scale g 1.1', 'move g 1.2 -0.3', 'set r fill red', 'delete g']) {
     assert.doesNotMatch(cli.dispatch(command)!, /^error:/);
@@ -57,7 +57,7 @@ test('multiple commands rewind to empty canvas and replay in order', () => {
 });
 
 test('failed commands and display commands preserve redo, a new edit clears it', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init');
   cli.dispatch('create rect r 1 2 3 4'); cli.dispatch('move r 5 6'); cli.dispatch('undo');
   const before = cli.dispatch('tree');
   for (const line of ['scale r 0', 'set r width -1', 'create g r', 'addto r r', 'move missing 1 2', 'move r NaN 1', 'set r mystery 1', 'create text t 0 0 "bad', 'undo extra', 'redo extra']) {
@@ -72,7 +72,7 @@ test('failed commands and display commands preserve redo, a new edit clears it',
 });
 
 test('init and canvas writes form history barriers, failed writes do not', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init');
   for (const verb of ['undo', 'redo']) assert.equal(cli.dispatch(verb), 'error: undo not allowed after io command');
   assert.match(cli.dispatch('create rect bad 0 0 -1 1')!, /^error:/);
   assert.equal(cli.dispatch('undo'), 'error: undo not allowed after io command');
@@ -129,7 +129,7 @@ test('cross-parent group and ungroup restore exact parents, sibling order and ow
 });
 
 test('overflow and illegal structural edits preserve both tree and previous undo unit', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init'); cli.dispatch('create g scene');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init'); cli.dispatch('create g scene');
   cli.dispatch('create rect r 1 2 3 4 in scene');
   cli.dispatch(`create circle c ${Number.MAX_VALUE} 0 1 in scene`);
   const before = cli.dispatch('tree');
@@ -152,7 +152,7 @@ test('history rolls back a partially applied command without consuming a unit or
 });
 
 test('z-order and addto undo/redo preserve same-parent and cross-parent positions', () => {
-  const cli = new CommandDispatcher(); cli.dispatch('init');
+  const cli = new CommandDispatcher(new EditorSession()); cli.dispatch('init');
   for (const line of ['create g g', 'create g h', 'create circle a 0 0 1 in g', 'create circle b 0 0 1 in g', 'create circle c 0 0 1 in g']) cli.dispatch(line);
   for (const line of ['front a', 'back c', 'addto g c', 'addto h b', 'addto g b']) {
     const before = cli.dispatch('tree'); cli.dispatch(line); const after = cli.dispatch('tree');

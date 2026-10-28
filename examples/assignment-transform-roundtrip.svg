@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><g id="diagram"><rect id="a" x="60" y="40" width="120" height="60" fill="#4a90d9"/><line id="e" x1="180" y1="70" x2="260" y2="70" stroke="black"/><g id="nodeB"><rect id="rect1" x="260" y="40" width="96" height="48" fill="#f5a623" stroke-width="0.8"/><text id="text1" x="308" y="70.4" text-anchor="middle" font-size="12.8" fill="white" stroke-width="0.8">End</text></g></g></svg>

@@ -1,0 +1,11 @@
+# The original nested transform and text styles from assignment section 0.1.
+read examples/assignment-transform.svg
+tree
+show text1
+save examples/assignment-transform-roundtrip.svg
+read examples/assignment-transform-roundtrip.svg
+move nodeB 0 20
+undo
+redo
+undo
+tree

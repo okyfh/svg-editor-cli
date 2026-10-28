@@ -8,27 +8,38 @@ export class SvgDocument {
   #width: number;
   #height: number;
   #children: Shape[] = [];
-  public constructor(width = 800, height = 600) {
+  #svgAttributes: Readonly<Record<string, string>>;
+  public constructor(width = 800, height = 600, svgAttributes: Readonly<Record<string, string>> = {}) {
     this.validateSize(width, height);
     this.#width = width; this.#height = height;
+    this.#svgAttributes = Object.freeze({ ...svgAttributes });
+  }
+  public get svgAttributes(): Readonly<Record<string, string>> { return this.#svgAttributes; }
+  public get elementCount(): number {
+    const count = (shapes: readonly Shape[]): number => shapes.reduce((total, shape) => total + 1 + count(shape.children), 0);
+    return count(this.#children);
   }
   public get width(): number { return this.#width; }
   public get height(): number { return this.#height; }
   public get children(): readonly Shape[] { return Object.freeze([...this.#children]); }
   public capture(): Memento {
     const width = this.#width, height = this.#height;
+    const svgAttributes = this.#svgAttributes;
     const children = [...this.#children];
     const states = children.map(child => child.capture());
     return new Memento(() => {
       for (const child of this.#children) this.release(child);
       for (const state of states) state.restore();
       this.#width = width; this.#height = height; this.#children = [...children];
+      this.#svgAttributes = svgAttributes;
       for (const child of this.#children) this.claim(child);
     });
   }
   public resize(width: number, height: number): void {
     this.validateSize(width, height);
     this.#width = width; this.#height = height;
+    const { viewBox: _oldViewBox, ...attributes } = this.#svgAttributes;
+    this.#svgAttributes = Object.freeze(attributes);
   }
   public find(id: string): Shape | undefined {
     for (const child of this.#children) {
@@ -80,7 +91,7 @@ export class SvgDocument {
   public group(id: string, memberIds: readonly string[]): Group {
     const group = new Group(id);
     if (this.find(id)) throw new Error(`id already exists: ${id}`);
-    if (memberIds.length === 0) throw new Error('group requires at least one shape');
+    if (memberIds.length < 2) throw new Error('group requires at least two shapes');
     if (new Set(memberIds).size !== memberIds.length) throw new Error('duplicate group member');
     const selected = memberIds.map(memberId => this.require(memberId));
     for (const node of selected) {

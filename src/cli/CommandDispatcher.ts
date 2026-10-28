@@ -18,7 +18,8 @@ import { CreateCommand } from '../application/CreateCommand.js';
 import { TreeCommand } from './TreeCommand.js';
 import { ShowCommand } from './ShowCommand.js';
 import { HelpCommand } from './HelpCommand.js';
-import { PendingCommand } from './PendingCommand.js';
+import { ReadCommand } from '../application/ReadCommand.js';
+import { SaveCommand } from '../application/SaveCommand.js';
 import { Tokenizer } from './Tokenizer.js';
 import { Token } from './Token.js';
 
@@ -26,7 +27,7 @@ import { Token } from './Token.js';
 export class CommandDispatcher {
   readonly #commands: Map<string, Command>;
   readonly #create: CreateCommand;
-  public constructor(session = new EditorSession(), private readonly tokenizer = new Tokenizer()) {
+  public constructor(session: EditorSession, private readonly tokenizer = new Tokenizer()) {
     this.#create = new CreateCommand(session, new ShapeFactory());
     this.#commands = new Map<string, Command>([
       ['init', new InitCommand(session)], ['canvas', new CanvasCommand(session)],
@@ -43,8 +44,8 @@ export class CommandDispatcher {
     this.#commands.set('back', new BackCommand(session));
     this.#commands.set('undo', new UndoCommand(session));
     this.#commands.set('redo', new RedoCommand(session));
-    this.#commands.set('read', new PendingCommand('read <file.svg> (stage 5)', 5, session, false));
-    this.#commands.set('save', new PendingCommand('save [file.svg] (stage 5)', 5, session));
+    this.#commands.set('read', new ReadCommand(session));
+    this.#commands.set('save', new SaveCommand(session));
     this.#commands.set('help', new HelpCommand(() => [...this.#commands.values()]));
   }
   public dispatch(line: string): string | undefined {
