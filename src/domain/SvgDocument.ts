@@ -1,3 +1,4 @@
+import { Memento } from './Memento.js';
 import { Shape } from './Shape.js';
 import { Group, treeAuthority } from './Group.js';
 
@@ -14,6 +15,17 @@ export class SvgDocument {
   public get width(): number { return this.#width; }
   public get height(): number { return this.#height; }
   public get children(): readonly Shape[] { return Object.freeze([...this.#children]); }
+  public capture(): Memento {
+    const width = this.#width, height = this.#height;
+    const children = [...this.#children];
+    const states = children.map(child => child.capture());
+    return new Memento(() => {
+      for (const child of this.#children) this.release(child);
+      for (const state of states) state.restore();
+      this.#width = width; this.#height = height; this.#children = [...children];
+      for (const child of this.#children) this.claim(child);
+    });
+  }
   public resize(width: number, height: number): void {
     this.validateSize(width, height);
     this.#width = width; this.#height = height;

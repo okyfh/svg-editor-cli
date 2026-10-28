@@ -32,7 +32,7 @@ test('no-document errors, help, unknown and pending commands are explicit', () =
   assert.equal(cli.dispatch('wat'), 'error: unknown command: wat');
   assert.equal(cli.dispatch('read file.svg'), 'error: command is planned for stage 5');
   cli.dispatch('init');
-  assert.equal(cli.dispatch('undo'), 'error: command is planned for stage 4');
+  assert.equal(cli.dispatch('undo'), 'error: undo not allowed after io command');
 });
 
 test('all built-in shapes create with defaults, colors, float coordinates and quoted text', () => {

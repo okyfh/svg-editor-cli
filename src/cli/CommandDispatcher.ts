@@ -1,3 +1,14 @@
+import { DeleteCommand } from '../application/DeleteCommand.js';
+import { MoveCommand } from '../application/MoveCommand.js';
+import { ScaleCommand } from '../application/ScaleCommand.js';
+import { SetCommand } from '../application/SetCommand.js';
+import { GroupCommand } from '../application/GroupCommand.js';
+import { UngroupCommand } from '../application/UngroupCommand.js';
+import { AddToCommand } from '../application/AddToCommand.js';
+import { FrontCommand } from '../application/FrontCommand.js';
+import { BackCommand } from '../application/BackCommand.js';
+import { UndoCommand } from '../application/UndoCommand.js';
+import { RedoCommand } from '../application/RedoCommand.js';
 import type { Command } from '../application/Command.js';
 import { EditorSession } from '../application/EditorSession.js';
 import { ShapeFactory } from '../application/ShapeFactory.js';
@@ -21,9 +32,17 @@ export class CommandDispatcher {
       ['init', new InitCommand(session)], ['canvas', new CanvasCommand(session)],
       ['create', this.#create], ['tree', new TreeCommand(session)], ['show', new ShowCommand(session)],
     ]);
-    for (const syntax of ['delete <id>', 'move <id> <dx> <dy>', 'scale <id> <factor>', 'set <id> <attr> <value>', 'group <newGid> <id1> <id2>...', 'ungroup <gid>', 'addto <gid> <id>', 'front <id>', 'back <id>', 'undo', 'redo']) {
-      this.#commands.set(syntax.split(' ')[0]!, new PendingCommand(`${syntax} (stage 4)`, 4, session));
-    }
+    this.#commands.set('delete', new DeleteCommand(session));
+    this.#commands.set('move', new MoveCommand(session));
+    this.#commands.set('scale', new ScaleCommand(session));
+    this.#commands.set('set', new SetCommand(session));
+    this.#commands.set('group', new GroupCommand(session));
+    this.#commands.set('ungroup', new UngroupCommand(session));
+    this.#commands.set('addto', new AddToCommand(session));
+    this.#commands.set('front', new FrontCommand(session));
+    this.#commands.set('back', new BackCommand(session));
+    this.#commands.set('undo', new UndoCommand(session));
+    this.#commands.set('redo', new RedoCommand(session));
     this.#commands.set('read', new PendingCommand('read <file.svg> (stage 5)', 5, session, false));
     this.#commands.set('save', new PendingCommand('save [file.svg] (stage 5)', 5, session));
     this.#commands.set('help', new HelpCommand(() => [...this.#commands.values()]));

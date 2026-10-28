@@ -1,3 +1,4 @@
+import { Memento } from './Memento.js';
 import { Shape } from './Shape.js';
 import { Geometry } from './Geometry.js';
 
@@ -13,6 +14,11 @@ export abstract class GeometricShape extends Shape {
   public override set(attribute: string, value: string): void {
     if (this.#geometry.has(attribute)) this.#geometry.set(attribute, value);
     else super.set(attribute, value);
+  }
+  public override capture(): Memento {
+    const base = super.capture();
+    const geometry = this.#geometry.copy();
+    return new Memento(() => { base.restore(); this.#geometry = geometry.copy(); });
   }
   public override move(dx: number, dy: number): void {
     this.#geometry = this.#geometry.translated(this.xAttributes, this.yAttributes, dx, dy);

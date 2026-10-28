@@ -10,7 +10,7 @@ export class CanvasCommand implements Command {
     const a = new CommandArguments(args, this.syntax);
     if (args.length === 0) return `canvas ${doc.width}x${doc.height}`;
     a.count(2);
-    doc.resize(a.number(0), a.number(1));
+    this.session.resize(a.number(0), a.number(1));
     return `canvas resized to ${doc.width}x${doc.height}`;
   }
 }

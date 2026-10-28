@@ -11,6 +11,7 @@ export class Geometry {
   public get attributes(): Readonly<Record<string, number>> {
     return Object.freeze(Object.fromEntries(this.#values));
   }
+  public copy(): Geometry { return new Geometry(this.attributes, [...this.#sizes]); }
   public has(key: string): boolean { return this.#values.has(key); }
   public set(key: string, value: string): void {
     const numeric = Number(value);

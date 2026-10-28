@@ -1,0 +1,28 @@
+# Stage 4: each edit is one undo unit.
+init 800 600
+create g scene
+create rect start 120 100 160 60 #4a90d9 in scene
+create text label 155 135 "开始" in scene
+create line edge 280 130 520 130 black in scene
+group node start label
+move node 0 100
+undo
+redo
+set label text "开始 v2"
+scale node 0.5
+front node
+back edge
+addto node edge
+undo
+ungroup node
+undo
+delete node
+undo
+tree
+show label
+# Resize clears history; the next edit enables undo again.
+canvas 900 700
+set node fill orange
+undo
+canvas
+tree

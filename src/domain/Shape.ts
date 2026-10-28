@@ -1,3 +1,5 @@
+import { Memento } from './Memento.js';
+
 export abstract class Shape {
   readonly #id: string;
   readonly #style = new Map<string, string>();
@@ -25,6 +27,14 @@ export abstract class Shape {
     }
     if (attribute === 'stroke-width') this.nonNegative(this.number(value));
     this.#style.set(attribute, value);
+  }
+
+  public capture(): Memento {
+    const style = new Map(this.#style);
+    return new Memento(() => {
+      this.#style.clear();
+      for (const [key, value] of style) this.#style.set(key, value);
+    });
   }
 
   public find(id: string): Shape | undefined {

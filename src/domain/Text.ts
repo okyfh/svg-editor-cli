@@ -1,3 +1,4 @@
+import { Memento } from './Memento.js';
 import { GeometricShape } from './GeometricShape.js';
 
 export class Text extends GeometricShape {
@@ -9,6 +10,11 @@ export class Text extends GeometricShape {
   public override get type(): string { return 'text'; }
   protected override get xAttributes(): readonly string[] { return ["x"]; }
   protected override get yAttributes(): readonly string[] { return ["y"]; }
+  public override capture(): Memento {
+    const base = super.capture();
+    const content = this.#content;
+    return new Memento(() => { base.restore(); this.#content = content; });
+  }
   public get content(): string { return this.#content; }
   public override get attributes(): Readonly<Record<string, string | number>> {
     return Object.freeze({ ...super.attributes, text: this.#content });
