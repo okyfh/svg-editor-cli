@@ -97,6 +97,7 @@ npm run cli < examples/transform-roundtrip.txt
 
 path 不属于本作业规定的六类图形，box 属后续插件阶段。旋转/斜切/非等比变换、完整 CSS 样式表/选择器、百分比长度、tspan、DOCTYPE 与外部样式指令也不在当前导入能力内，遇到它们会明确报错。作业中全部实际 SVG 示例（含预览样式）均已作为回归用例通过。
 
+- [主要功能手动验证](doc/MANUAL_TEST.md)
 - [最终验收记录与交付清单](doc/ACCEPTANCE.md)
 - [架构方案与过程记录](doc/README.md)
 - [原始作业要求](doc/assignment.md)
